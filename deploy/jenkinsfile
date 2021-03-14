@@ -17,7 +17,6 @@ pipeline {
       }
     }
 
-
     stage('Prepare Dependencies') {
       steps {
              sh 'mv .env.sample .env'
