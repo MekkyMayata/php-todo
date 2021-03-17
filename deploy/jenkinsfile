@@ -29,7 +29,7 @@ pipeline {
 
     stage('Execute Unit Tests') {
       steps {
-        sh './vendor/bin/phpunit --coverage-clover=reports/unitreport.xml'
+        sh './vendor/bin/phpunit'
       }
     }
 
