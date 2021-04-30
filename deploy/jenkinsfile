@@ -60,6 +60,23 @@ pipeline {
       }
     }
 
+    stage('SonarQube Quality Gate') {
+      when { branch pattern: "^develop*|^hotfix*|^release*|^main*", comparator: "REGEXP" }
+
+      environment {
+        scannerHome = tool 'SonarQubeScanner'
+      }
+
+      steps {
+        withSonarQubeEnv('sonarqube') {
+          sh "${scannerHome}/bin/sonar-scanner -D project.settings=sonar-project.properties"
+        }
+        timeout(time: 1, unit: 'MINUTES') {
+          waitForQualityGate abortPipeline: true
+        }
+      }
+    }
+
     stage ('Deploy Artifact') {
       steps {
         script { 
@@ -79,23 +96,6 @@ pipeline {
     stage ('Deploy to Dev Environment') {
       steps {
         build job: 'CI-JAASP/master', parameters: [[$class: 'StringParameterValue', name: 'env', value: 'dev']], propagate: false, wait: true
-      }
-    }
-
-    stage('SonarQube Quality Gate') {
-      when { branch pattern: "^develop*|^hotfix*|^release*|^main*", comparator: "REGEXP" }
-
-      environment {
-        scannerHome = tool 'SonarQubeScanner'
-      }
-
-      steps {
-        withSonarQubeEnv('sonarqube') {
-          sh "${scannerHome}/bin/sonar-scanner -D project.settings=sonar-project.properties"
-        }
-        timeout(time: 1, unit: 'MINUTES') {
-          waitForQualityGate abortPipeline: true
-        }
       }
     }
 
